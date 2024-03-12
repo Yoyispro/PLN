@@ -1,0 +1,115 @@
+class StemmerEspañol:
+    def __init__(self):
+        self.excepciones = {}
+
+    def derivar(self, palabra):
+        palabra = self.eliminar_tilde(palabra)
+        palabra = self.eliminar_pronombre_enclitico(palabra)
+        palabra = self.eliminar_desinencias_verbales(palabra)
+        palabra = self.procesar_sustantivo_adjetivo(palabra)
+        palabra = self.eliminar_sufijos(palabra)
+        palabra = self.reducir_vocales(palabra)
+        return palabra
+
+    #1 Eliminar tilde
+    def eliminar_tilde(self, palabra):
+        return palabra.replace('á', 'a').replace('é', 'e').replace('í', 'i').replace('ó', 'o').replace('ú', 'u')
+
+    #2.- elimiación de pronombres enclíticos
+    def eliminar_pronombre_enclitico(self, palabra):
+        patron = r'\b(me|te|se|nos|os|lo|la|le|les|los|las)\b'
+        texto_sin_pronombres = re.sub(patron, '', palabra)
+        return texto_sin_pronombres
+    #3.1 .- reducción de desinencia verbal (cantidad y tiempo)
+    def eliminar_desinencias_verbales(self, palabra):
+        patron = r'\b\w+[aeiíóú]?r\b'
+        texto_sin_desinencias = re.sub(patron, '', palabra)
+        return texto_sin_desinencias
+    #3.2 .- Singularizar palabras
+    def procesar_sustantivo_adjetivo(self, palabra):
+        return singularize(palabra)
+
+    #4 Eliminar sufijos
+    def eliminar_sufijos(self, palabra):
+        # Implementar eliminación de sufijos utilizando regiones R1, R2 y RV (region vocal)
+        r1, r2, rv = self.calcular_regiones(palabra)
+        sufijos_comunes = ['ar', 'er', 'ir',"ón", "ona", "azo", "aza", "aco", "aca", "itos", 'er', 'ante', 'es', 'mos', 'leza', 'aria', 'aremos',
+               'amente', 'a', 'es', 'ador','e','ían','izar',"ito","os"]
+        for sufijo in sufijos_comunes:
+            if palabra.endswith(sufijo):
+                if len(palabra) - len(sufijo) >= rv:
+                    palabra = palabra[:len(palabra) - len(sufijo)]
+                    break
+        return palabra
+
+    # 5.- Reducir vocales
+    def reducir_vocales(self, palabra):
+        return re.sub(r'([aeiou])\1+', r'\1', palabra)
+
+    def calcular_regiones(self, palabra):
+        r1 = self.calcular_r1(palabra)
+        r2 = self.calcular_r2(palabra, r1)
+        rv = self.calcular_rv(palabra)
+        return r1, r2, rv
+
+    def calcular_r1(self, palabra):
+        # Calcular la región R1
+        r1 = len(palabra)
+        for i in range(1, len(palabra)):
+            if palabra[i] in 'aeiouáéíóú':
+                r1 = i + 1
+                break
+        return r1
+
+    def calcular_r2(self, palabra, r1):
+        # Calcular la región R2
+        r2 = len(palabra)
+        for i in range(r1 + 1, len(palabra)):
+            if palabra[i] in 'aeiouáéíóú':
+                r2 = i + 1
+                break
+        return r2
+
+    def calcular_rv(self, palabra):
+        # Calcular la región RV, si es menor a 3 letras regresa toda la palabra.
+        if len(palabra) < 3:
+            return len(palabra)
+            #Si el tercer caracter no es una vocal entonces:
+        if palabra[1] not in 'aeiouáéíóú':
+          # Busca a partir del 3er caracter que sea vocal
+            for i in range(2, len(palabra)):
+                if palabra[i] in 'aeiouáéíóú':
+                    return i + 1
+        else:
+           #Si el segundo caracter es una vocal entonces, busca a partir del 3ro que no sea una vocal:
+            for i in range(2, len(palabra)):
+                if palabra[i] not in 'aeiouáéíóú':
+                    return i + 1
+        return len(palabra)
+
+
+stemmer = StemmerEspañol()
+
+# Ejemplo de uso
+palabra_input = "gatitos"
+resultado = stemmer.derivar(palabra_input)
+print(f"Original: {palabra_input}")
+print(f"Stemming: {resultado}")
+
+
+
+# Oración
+oracion = "Con estos fines, la Dirección de Gestión y Control Financiero monitorea la posición de capital del Banco y utiliza los mecanismos para hacer un eficiente manejo del capital"
+
+# Dividir la oración en palabras
+palabras = oracion.split()
+
+# Aplicar el stemming a cada palabra de la oración
+resultado = [stemmer.derivar(str(palabra)) for palabra in palabras]
+
+# Unir las palabras procesadas para formar la oración resultante
+oracion_resultante = ' '.join(resultado)
+
+# Imprimir el resultado
+print(f"Oración original: {oracion}")
+print(f"Oración procesada: {oracion_resultante}")
