@@ -5,11 +5,18 @@ Implementación de Lemmatizador y stemmer
 
 ### Prerrequisitos
 Bibliptecas esenciales para poder correr correctamente el repositorio
+
 !pip install pattern
+
 import re
+
 from pattern.es import singularize
+
 from google.colab import drive
+
 !pip install nltk
+
 !pip install spacy
+
 !python -m spacy download es_core_news_sm
 
