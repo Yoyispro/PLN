@@ -1,0 +1,68 @@
+import re
+
+class Lematizador:
+
+    def __init__(self, archivo_excepciones, archivo_reglas):
+        self.excepciones = {}
+        self.reglas = {}
+
+        # Cargar excepciones desde el archivo de texto
+        try:
+            with open(archivo_excepciones, 'r', encoding='utf-8') as archivo:
+                for linea in archivo:
+                    partes = list(map(str.strip, linea.split(':')))
+                    if len(partes) == 2:
+                        palabra, reemplazo = partes
+                        self.excepciones[palabra] = reemplazo
+                    else:
+                        print(f"Error en el formato de la línea: {linea}")
+        except FileNotFoundError:
+            print(f"Error: No se pudo encontrar el archivo {archivo_excepciones}")
+
+        # Cargar reglas desde el archivo de texto
+        try:
+            with open(archivo_reglas, 'r', encoding='utf-8') as archivo:
+                for linea in archivo:
+                    partes = list(map(str.strip, linea.split(':')))
+                    if len(partes) == 2:
+                        antigua, nueva = partes
+                        self.reglas[antigua] = nueva
+                    else:
+                        print(f"Error en el formato de la línea: {linea}")
+        except FileNotFoundError:
+            print(f"Error: No se pudo encontrar el archivo {archivo_reglas}")
+
+    def aplicar_excepciones(self, palabra):
+        return self.excepciones.get(palabra, palabra)
+
+    def aplicar_reglas(self, token):
+        token = token.lower()
+
+        for antigua, nueva in self.reglas.items():
+            if token.endswith(antigua):
+                return token[:len(token) - len(antigua)] + nueva
+
+        return token
+
+    def lematizar(self, texto):
+        tokens = re.findall(r'\b\w+\b', texto)  # Tokenizar el texto
+
+        # Aplicar excepciones y reglas a cada token
+        tokens_lematizados = [self.aplicar_excepciones(token) for token in tokens]
+        tokens_lematizados = [self.aplicar_reglas(token) for token in tokens_lematizados]
+
+        return ' '.join(tokens_lematizados)
+
+# Rutas de los archivos de excepciones y reglas
+archivo_excepciones = '/content/drive/MyDrive/Bases de Datos/excepciones.txt'
+archivo_reglas = '/content/drive/MyDrive/Bases de Datos/reglas.txt'
+
+# Aplicar lematización teniendo en cuenta nuestros archivos con nuestras reglas.
+lematizador = Lematizador(archivo_excepciones, archivo_reglas)
+
+# Oracion
+texto_ejemplo = "Con estos fines, la Dirección de Gestión y Control Financiero monitorea la posición de capital del Banco y utiliza los mecanismos para hacer un eficiente manejo del capital."
+resultado = lematizador.lematizar(texto_ejemplo)
+
+print(f"Texto original: {texto_ejemplo}")
+print(f"Texto lematizado: {resultado}")
