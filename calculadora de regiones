@@ -1,0 +1,16 @@
+stemmer = StemmerEspañol()
+
+# Conteo de región vocal
+oracion = "Con estos fines, la Dirección de Gestión y Control Financiero monitorea la posición de capital del Banco y utiliza los mecanismos para hacer un eficiente manejo del capital"
+
+# Dividir la oración en palabras
+palabras = oracion.split()
+
+# Mostrar las regiones para cada palabra
+for palabra in palabras:
+    r1, r2, rv = stemmer.calcular_regiones(palabra)
+    print(f"Palabra: {palabra}")
+    print(f"Región R1: {r1}")
+    print(f"Región R2: {r2}")
+    print(f"Región RV: {rv}")
+    print()
