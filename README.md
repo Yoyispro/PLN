@@ -1,12 +1,12 @@
 # PLN
 Implementación de Lemmatizador y stemmer 
 ## Comenzando
-**Instalación** Puedes correr el porgema en tu maquina o en google colab .
+**Instalación** Puedes correr el programa en tu maquina o en google colab .
 
 ### Prerrequisitos
-Bibliptecas esenciales para poder correr correctamente el repositorio
+Bibliotecas esenciales para poder correr correctamente el repositorio
 
-Tambien es necesaio tener los archivos reglas.txt y excepciones.txt
+Tambien es necesario tener los archivos reglas.txt y excepciones.txt
 
 !pip install pattern
 
